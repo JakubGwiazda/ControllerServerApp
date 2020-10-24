@@ -10,7 +10,12 @@ namespace ControllerServerApp
     {
         SET_SOUND,
         GET_SOUND,
-        GET_SONG_LIST
+        GET_SONG_LIST,
+        PLAY_SONG,
+        START_SONG,
+        STOP_SONG,
+        FORWARD,
+        BACKWARD
 
     }
 }

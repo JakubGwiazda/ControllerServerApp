@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using Newtonsoft.Json;
 namespace ControllerServerApp
 {
     class Server
@@ -53,8 +54,23 @@ namespace ControllerServerApp
             byte[] bytes = new byte[client.ReceiveBufferSize];
             stream.Read(bytes, 0, (int)client.ReceiveBufferSize);
             string dataToRead = Encoding.UTF8.GetString(bytes);
-            OrderInterpreter.DoClientOrder(dataToRead);            
- 
+            OrderInterpreter.DoClientOrder(EncodeClientMessage(dataToRead));  
         }
+
+        public MessageFromClient EncodeClientMessage(string messageFromClient)
+        {
+        
+            var a = JsonConvert.DeserializeObject<MessageFromClient>(messageFromClient);
+            return a;
+        
+        
+        }
+        
+    }
+
+    public class MessageFromClient
+    {
+        public string Order { get; set; }
+        public string Message { get; set; }
     }
 }

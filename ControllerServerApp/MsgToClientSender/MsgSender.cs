@@ -18,7 +18,7 @@ namespace ControllerServerApp
             try
             {
                 string soundLvL = ServerFunctions.GetLevelSound();
-                byte[] bytesToSend = System.Text.Encoding.ASCII.GetBytes(soundLvL);
+                byte[] bytesToSend = System.Text.Encoding.UTF8.GetBytes(soundLvL);
                 await Server.clientStream.WriteAsync(bytesToSend, 0, bytesToSend.Length);
             }
             catch (Exception ex)
@@ -31,8 +31,8 @@ namespace ControllerServerApp
             try
             {
                 var json = JsonConvert.SerializeObject(MusicPlayerManager.GetSongList());
-                byte[] bytesToSend = System.Text.Encoding.ASCII.GetBytes(json);
-                Console.WriteLine(bytesToSend.Length);
+                byte[] bytesToSend = System.Text.Encoding.UTF8.GetBytes(json);
+                Console.WriteLine("/nWyslano liste");
                 await Server.clientStream.WriteAsync(bytesToSend, 0, bytesToSend.Length);
             }
             catch (Exception ex)

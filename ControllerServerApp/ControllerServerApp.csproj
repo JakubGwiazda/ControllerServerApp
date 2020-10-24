@@ -59,11 +59,12 @@
     <Compile Include="Enums\Commands.cs" />
     <Compile Include="Enums\MusicFormat.cs" />
     <Compile Include="Enums\PlayerCommands.cs" />
+    <Compile Include="Functions\MusicPlayer.cs" />
     <Compile Include="MsgFromClientReceiver\OrderInterpreter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerCore\Server.cs" />
-    <Compile Include="Functions\MusicPlayerManager.cs" />
+    <Compile Include="ServerModules\MusicPlayerManager.cs" />
     <Compile Include="Functions\ServerFunctions.cs" />
     <Compile Include="MsgToClientSender\MsgSender.cs" />
   </ItemGroup>
