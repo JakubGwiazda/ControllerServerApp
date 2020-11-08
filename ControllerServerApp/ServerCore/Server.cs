@@ -63,7 +63,6 @@ namespace ControllerServerApp
             var a = JsonConvert.DeserializeObject<MessageFromClient>(messageFromClient);
             return a;
         
-        
         }
         
     }

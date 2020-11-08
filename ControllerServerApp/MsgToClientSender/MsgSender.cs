@@ -12,7 +12,6 @@ namespace ControllerServerApp
 {
     public static class MsgSender
     {
-
         public  async static void SendCurrentSoundLvL()
         {
             try
@@ -26,13 +25,25 @@ namespace ControllerServerApp
                 Console.WriteLine("Error", "" + ex.ToString(), "OK");
             }
         }
+        public async static void SendDataToClient<T>(T dataToSend)
+        {
+            try
+            {
+                var json = JsonConvert.SerializeObject(dataToSend);
+                byte[] bytesToSend = System.Text.Encoding.UTF8.GetBytes(json);
+                await Server.clientStream.WriteAsync(bytesToSend, 0, bytesToSend.Length);
+            }catch(Exception ex)
+            {
+                Console.WriteLine("Error", "" + ex.ToString(), "OK");
+
+            }
+        }
         public async static void SendSongListAsJSON()
         {
             try
             {
                 var json = JsonConvert.SerializeObject(MusicPlayerManager.GetSongList());
                 byte[] bytesToSend = System.Text.Encoding.UTF8.GetBytes(json);
-                Console.WriteLine("/nWyslano liste");
                 await Server.clientStream.WriteAsync(bytesToSend, 0, bytesToSend.Length);
             }
             catch (Exception ex)
@@ -56,8 +67,5 @@ namespace ControllerServerApp
                 Console.WriteLine("Error", "" + ex.ToString(), "OK");
             }
         }
-    
-
     }
-
 }

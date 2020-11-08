@@ -60,6 +60,7 @@
     <Compile Include="Enums\MusicFormat.cs" />
     <Compile Include="Enums\PlayerCommands.cs" />
     <Compile Include="Functions\MusicPlayer.cs" />
+    <Compile Include="Functions\SongData.cs" />
     <Compile Include="MsgFromClientReceiver\OrderInterpreter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

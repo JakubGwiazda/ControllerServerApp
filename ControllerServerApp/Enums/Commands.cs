@@ -15,7 +15,8 @@ namespace ControllerServerApp
         START_SONG,
         STOP_SONG,
         FORWARD,
-        BACKWARD
+        BACKWARD,
+        PLAY_FROM_SPECIFIC_POINT
 
     }
 }

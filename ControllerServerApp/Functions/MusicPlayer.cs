@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NAudio.Wave;
+using Newtonsoft.Json;
 
 namespace ControllerServerApp
 {
@@ -14,23 +15,41 @@ namespace ControllerServerApp
         static WaveOutEvent outPutDevice;
         static bool isPlayerRunning = false;
         static Thread player = null;
-        static Thread controller = null;
-
+        static Thread songDetailsSender = null;
+        public static SongData songData;
         public MusicPlayer(string basePathToMusic) : base(basePathToMusic)
         {
             outPutDevice = new WaveOutEvent();
 
         }
 
+       
         private static void StartPlayingAudioFile(string pathToAudioFile)
         {
             afr = new AudioFileReader(pathToAudioFile);
+
+            songData = new SongData()
+            {
+                Minutes = afr.TotalTime.Minutes,
+                Seconds = afr.TotalTime.Seconds
+            };
+            MsgSender.SendDataToClient(songData);
+
             outPutDevice.Init(afr);
             outPutDevice.Play();
+            Console.WriteLine(afr.TotalTime.TotalSeconds);
             while (outPutDevice.PlaybackState != PlaybackState.Stopped)
             {
-            }
 
+                Console.WriteLine("\n" + JsonConvert.SerializeObject(songData));
+                Thread.Sleep(1000);
+
+                songData.Minutes = afr.CurrentTime.Minutes;
+                songData.Seconds = afr.CurrentTime.Seconds;
+                if(outPutDevice.PlaybackState!=PlaybackState.Paused)
+                MsgSender.SendDataToClient(songData);
+            
+            }
         }
         public static void StopSong()
         {
@@ -42,43 +61,21 @@ namespace ControllerServerApp
             outPutDevice.Play();
 
         }
-        public void Forward10()
+        public static void Forward10()
         {
             afr.Skip(10);
 
         }
-        public void Backward10()
+        public static void Backward10()
         {
             afr.Skip(-10);
         }
-        private static void PlayerCommands()
+        public static void PlayFromSpecificSongPoint(int timeToSkip)
         {
-            string command;
-
-            do
-            {
-
-                command = Console.ReadLine();
-                if (command.Equals("stop"))
-                {
-                    outPutDevice.Pause();
-                }
-                if (command.Equals("start"))
-                {
-                    outPutDevice.Play();
-
-                }
-                if (command.Equals("forward"))
-                {
-                    Console.WriteLine(afr.CurrentTime + " / " + afr.TotalTime);
-                    afr.Skip(60);
-                    afr.Take(TimeSpan.FromSeconds(10));
-                    Console.WriteLine(afr.CurrentTime + " / " + afr.TotalTime);
-
-                }
-            } while (!command.Equals("e"));
+            outPutDevice.Play();
+            afr.Skip(timeToSkip);
         }
-
+      
         public static void OpenChoosenSong(string song)
         {
             
@@ -90,32 +87,24 @@ namespace ControllerServerApp
                 {
                     isPlayerRunning = true;
                     player = new Thread(() => StartPlayingAudioFile(pathToChoosenSong));
+                   //  songDetailsSender = new Thread(() => MsgSender.SendDataToClient(JsonConvert.SerializeObject(songData)));
                     player.Start();
-                    controller = new Thread(() => PlayerCommands());
-                    controller.Start();
+                   //  songDetailsSender.Start();
                 }
                 else
                 {
                     afr.Dispose();
                     player.Abort();
-                    controller.Abort();
-                    
-                    OpenSong(ref player,ref controller, pathToChoosenSong);
+                    player = new Thread(() => StartPlayingAudioFile(pathToChoosenSong));
+                    player.Start();
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
             }
-
         }
-        private static void OpenSong( ref Thread player, ref Thread controller, string pathToSong)
-        {
-            player = new Thread(() => StartPlayingAudioFile(pathToSong));
-            player.Start();
-            controller = new Thread(() => PlayerCommands());
-            controller.Start();
-        }
+    
 
         public static string FindPathToChoosenAudioFile(string audioFile)
         {
@@ -124,5 +113,6 @@ namespace ControllerServerApp
             audioSongs.TryGetValue(GetKey(audioFile), out pathsToSongs);
             return pathsToSongs.FirstOrDefault(x => x.Contains(audioFile));
         }
+
     }
 }

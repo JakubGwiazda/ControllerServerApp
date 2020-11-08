@@ -13,21 +13,9 @@ namespace ControllerServerApp
   
         static void Main(string[] args)
         {
-            // MusicPlayerManager a = new MusicPlayerManager(@"D:\Muzyka");
-           //  Console.WriteLine(a.FindPathToChoosenAudioFile("Czas miłości"));
-            // a.OpenChoosenSong("Czas miłości");
-
-           // MsgSender.SendSongList();
-            //a.FindPathsToAudioFilesOnHardDrive(@"D:\Muzyka","mp3");
-            // a.StartPlayingAudioFile(@"D:\Muzyka\Studio Accantus - Złota Kolekcja\Studio Accantus - Złota Kolekcja\Jeszcze dzień - Nędznicy.mp3");
-            MusicPlayerManager mpm = new MusicPlayerManager(@"D:\Muzyka");
-           
-
-
-       //  var a =   MusicPlayerManager.GetSongList();
-    //        var json = JsonConvert.SerializeObject(MusicPlayerManager.GetSongList());
-
-                Server server = new Server();
+ 
+           MusicPlayer mp = new MusicPlayer(@"D:\Muzyka");
+           Server server = new Server();
                   server.StartServer();
         }
     }
