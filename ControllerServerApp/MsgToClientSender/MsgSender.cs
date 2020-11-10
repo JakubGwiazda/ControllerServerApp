@@ -35,7 +35,6 @@ namespace ControllerServerApp
             }catch(Exception ex)
             {
                 Console.WriteLine("Error", "" + ex.ToString(), "OK");
-
             }
         }
         public async static void SendSongListAsJSON()

@@ -15,12 +15,11 @@ namespace ControllerServerApp
         static WaveOutEvent outPutDevice;
         static bool isPlayerRunning = false;
         static Thread player = null;
-        static Thread songDetailsSender = null;
         public static SongData songData;
+
         public MusicPlayer(string basePathToMusic) : base(basePathToMusic)
         {
             outPutDevice = new WaveOutEvent();
-
         }
 
        
@@ -31,10 +30,11 @@ namespace ControllerServerApp
             songData = new SongData()
             {
                 Minutes = afr.TotalTime.Minutes,
-                Seconds = afr.TotalTime.Seconds
+                Seconds = afr.TotalTime.Seconds,
+                IsSongDuration=true
             };
             MsgSender.SendDataToClient(songData);
-
+            Thread.Sleep(1000);
             outPutDevice.Init(afr);
             outPutDevice.Play();
             Console.WriteLine(afr.TotalTime.TotalSeconds);
@@ -42,10 +42,11 @@ namespace ControllerServerApp
             {
 
                 Console.WriteLine("\n" + JsonConvert.SerializeObject(songData));
-                Thread.Sleep(1000);
+                Thread.Sleep(1000); //wymagane do odpowiedniej synchronizacji czasów wyswietlanych u klienta.
 
                 songData.Minutes = afr.CurrentTime.Minutes;
                 songData.Seconds = afr.CurrentTime.Seconds;
+                songData.IsSongDuration = false;
                 if(outPutDevice.PlaybackState!=PlaybackState.Paused)
                 MsgSender.SendDataToClient(songData);
             
@@ -87,13 +88,12 @@ namespace ControllerServerApp
                 {
                     isPlayerRunning = true;
                     player = new Thread(() => StartPlayingAudioFile(pathToChoosenSong));
-                   //  songDetailsSender = new Thread(() => MsgSender.SendDataToClient(JsonConvert.SerializeObject(songData)));
                     player.Start();
-                   //  songDetailsSender.Start();
                 }
                 else
                 {
                     afr.Dispose();
+                    outPutDevice.Stop();
                     player.Abort();
                     player = new Thread(() => StartPlayingAudioFile(pathToChoosenSong));
                     player.Start();
