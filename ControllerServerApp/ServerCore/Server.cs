@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using Newtonsoft.Json;
+using System.Net.NetworkInformation;
+
 namespace ControllerServerApp
 {
     class Server
@@ -20,13 +22,25 @@ namespace ControllerServerApp
 
         private void SetServerIPAddress()
         {
-            IPAddress[] localIP = Dns.GetHostAddresses(Dns.GetHostName());
-            foreach(IPAddress address in localIP)
+              
+               NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+            foreach(NetworkInterface ni in networkInterfaces)
             {
-                if (address.AddressFamily == AddressFamily.InterNetwork)
+               
+                if(ni.NetworkInterfaceType!=NetworkInterfaceType.Loopback && ni.NetworkInterfaceType!=NetworkInterfaceType.Tunnel
+                    && ni.OperationalStatus==OperationalStatus.Up && !ni.Name.StartsWith("vEthernet") && !ni.Description.Contains("Hyper-v") 
+                    && !ni.Description.Contains("VirtualBox"))
                 {
-                     ipAddress = address.ToString();
+                    IPInterfaceProperties properties = ni.GetIPProperties();
+                 
+                    foreach (IPAddressInformation address in properties.UnicastAddresses)
+                    {
+                        if (address.Address.AddressFamily != AddressFamily.InterNetwork)
+                            continue;
+                        ipAddress = address.Address.ToString();
+                    }
                 }
+
             }
         }
         public static string GetServerIP()
@@ -34,8 +48,10 @@ namespace ControllerServerApp
             return ipAddress;
         }
 
+     
         public void StartServer()
         {
+
             IPEndPoint ipEP = new IPEndPoint(IPAddress.Parse(ipAddress), 1234);
             listener = new TcpListener(ipEP);
             listener.Start();
@@ -51,11 +67,18 @@ namespace ControllerServerApp
 
         public void getDataFromClient(NetworkStream stream)
         {
+            try { 
             byte[] bytes = new byte[client.ReceiveBufferSize];
             stream.Read(bytes, 0, (int)client.ReceiveBufferSize);
             string dataToRead = Encoding.UTF8.GetString(bytes);
-            OrderInterpreter.DoClientOrder(EncodeClientMessage(dataToRead));  
-        }
+            OrderInterpreter.DoClientOrder(EncodeClientMessage(dataToRead));
+            }catch(Exception ex)
+            {
+                Console.WriteLine("\n" + "Blad polaczenia z klientem. Poleczenie zamkniete. Nalezy ponownie sie polaczyc." + "\n");
+                listener.Stop();
+                StartServer();
+            }
+            }
 
         public MessageFromClient EncodeClientMessage(string messageFromClient)
         {

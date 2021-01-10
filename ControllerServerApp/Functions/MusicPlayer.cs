@@ -37,11 +37,11 @@ namespace ControllerServerApp
             Thread.Sleep(1000);
             outPutDevice.Init(afr);
             outPutDevice.Play();
-            Console.WriteLine(afr.TotalTime.TotalSeconds);
+           // Console.WriteLine(afr.TotalTime.TotalSeconds);
             while (outPutDevice.PlaybackState != PlaybackState.Stopped)
             {
 
-                Console.WriteLine("\n" + JsonConvert.SerializeObject(songData));
+                //Console.WriteLine("\n" + JsonConvert.SerializeObject(songData)); aktualny stan piosenki
                 Thread.Sleep(1000); //wymagane do odpowiedniej synchronizacji czasów wyswietlanych u klienta.
 
                 songData.Minutes = afr.CurrentTime.Minutes;
